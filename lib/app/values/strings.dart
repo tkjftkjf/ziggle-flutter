@@ -13,5 +13,6 @@ abstract class Strings {
   static final privacyPolicyUrl = dotenv.get('PRIVACY_POLICY_URL');
   static final termsOfServiceUrl = dotenv.get('TERMS_OF_SERVICE_URL');
   static final withdrawalUrl = dotenv.get('WITHDRAWAL_URL');
-  static final heyDeveloperUrl = dotenv.get('HEY_DEVELOPER_URL');
+  static String heyDeveloperUrl(String? email) =>
+      "${dotenv.get('HEY_DEVELOPER_URL')}${email == null ? '' : '&email=$email'}";
 }

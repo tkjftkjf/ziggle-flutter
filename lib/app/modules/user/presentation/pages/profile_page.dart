@@ -111,7 +111,9 @@ class _Layout extends StatelessWidget {
               onPressed: () {
                 AnalyticsRepository.click(
                     const AnalyticsEvent.profileFeedback());
-                launchUrlString(Strings.heyDeveloperUrl);
+                launchUrlString(
+                  Strings.heyDeveloperUrl(UserBloc.userOrNull(context)?.email),
+                );
               },
             ),
             const SizedBox(height: 40),
