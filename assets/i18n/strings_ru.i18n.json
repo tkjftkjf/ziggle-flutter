@@ -71,6 +71,18 @@
         "user": "Пользователь"
       },
       "banish": "Исключить"
+    },
+    "detail": {
+      "appBar": {
+        "backLabel": "リスト",
+        "title": "グループ情報"
+      },
+      "tab": {
+        "introduction": "紹介",
+        "notice": "お知らせ",
+        "member": "メンバー"
+      },
+      "favorite": "お気に入り"
     }
   },
   "notice": {
