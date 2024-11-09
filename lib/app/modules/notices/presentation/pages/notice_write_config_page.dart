@@ -36,11 +36,13 @@ class _NoticeWriteConfigPageState extends State<NoticeWriteConfigPage>
   void didPopNext() =>
       AnalyticsRepository.pageView(const AnalyticsEvent.writeConfig());
 
-  DateTime? _deadline;
-  NoticeType? _type;
-  final List<String> _tags = [];
+  late final _draft = context.read<NoticeWriteBloc>().state.draft;
+  late DateTime? _deadline = _draft.deadline;
+  late NoticeType? _type = _draft.type;
+  late final List<String> _tags = _draft.tags.toList();
 
   void _save() {
+    // TODO: is there any way to save when type is not set?
     if (_type == null) return;
     context.read<NoticeWriteBloc>().add(NoticeWriteEvent.setConfig(
           deadline: _deadline,
@@ -66,6 +68,7 @@ class _NoticeWriteConfigPageState extends State<NoticeWriteConfigPage>
         backLabel: context.t.common.cancel,
         from: PageSource.writeConfig,
         title: Text(context.t.notice.write.configTitle),
+        onBack: _save,
         actions: [
           ZiggleButton.text(
             disabled: _type == null,

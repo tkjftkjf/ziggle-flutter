@@ -7,6 +7,7 @@ import 'package:ziggle/app/modules/core/domain/enums/language.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_write_draft_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/enums/notice_type.dart';
+import 'package:ziggle/app/modules/notices/domain/repositories/draft_save_repository.dart';
 import 'package:ziggle/app/modules/notices/domain/repositories/notice_repository.dart';
 
 part 'notice_write_bloc.freezed.dart';
@@ -14,8 +15,20 @@ part 'notice_write_bloc.freezed.dart';
 @injectable
 class NoticeWriteBloc extends Bloc<NoticeWriteEvent, NoticeWriteState> {
   final NoticeRepository _repository;
+  final DraftSaveRepository _draftSaveRepository;
 
-  NoticeWriteBloc(this._repository) : super(const _Draft()) {
+  NoticeWriteBloc(this._repository, this._draftSaveRepository)
+      : super(const _Initial()) {
+    on<_Init>((event, emit) async {
+      try {
+        final draft = await _draftSaveRepository.getDraft();
+        emit(_Draft(draft ?? NoticeWriteDraftEntity()));
+      } catch (e) {
+        await _draftSaveRepository.deleteDraft().catchError((_) {});
+        emit(_Error(NoticeWriteDraftEntity(), e.toString()));
+        emit(_Draft());
+      }
+    });
     on<_SetTitle>(
       (event, emit) => emit(_Draft(state.draft.copyWith(
         titles: {...state.draft.titles, event.lang: event.title},
@@ -96,17 +109,24 @@ class NoticeWriteBloc extends Bloc<NoticeWriteEvent, NoticeWriteState> {
               deadline: state.draft.deadline,
             );
           }
+          await _draftSaveRepository.deleteDraft().catchError((_) {});
           emit(_Done(state.draft, notice));
         }
       } catch (e) {
         emit(_Error(state.draft, e.toString()));
       }
     });
+    on<_Save>((event, emit) async {
+      emit(_Loading(state.draft));
+      await _draftSaveRepository.saveDraft(state.draft).catchError((_) {});
+      emit(_Saved(state.draft));
+    });
   }
 }
 
 @freezed
 class NoticeWriteEvent {
+  const factory NoticeWriteEvent.init() = _Init;
   const factory NoticeWriteEvent.setTitle(String title,
       [@Default(Language.ko) Language lang]) = _SetTitle;
   const factory NoticeWriteEvent.setBody(String body,
@@ -122,11 +142,15 @@ class NoticeWriteEvent {
     required Map<Language, String> contents,
   }) = _AddAdditional;
   const factory NoticeWriteEvent.publish([NoticeEntity? prevNotice]) = _Publish;
+  const factory NoticeWriteEvent.save() = _Save;
 }
 
 @freezed
 class NoticeWriteState with _$NoticeWriteState {
   const NoticeWriteState._();
+  const factory NoticeWriteState.initial(
+          [@Default(NoticeWriteDraftEntity()) NoticeWriteDraftEntity draft]) =
+      _Initial;
   const factory NoticeWriteState.draft(
           [@Default(NoticeWriteDraftEntity()) NoticeWriteDraftEntity draft]) =
       _Draft;
@@ -136,12 +160,14 @@ class NoticeWriteState with _$NoticeWriteState {
     NoticeWriteDraftEntity draft,
     NoticeEntity notice,
   ) = _Done;
+  const factory NoticeWriteState.saved(NoticeWriteDraftEntity draft) = _Saved;
   const factory NoticeWriteState.error(
     NoticeWriteDraftEntity draft,
     String error,
   ) = _Error;
 
-  bool get hasResult => this is _Done || this is _Error;
+  bool get isReady => this is! _Initial;
+  bool get hasResult => this is _Done || this is _Error || this is _Saved;
   bool get isLoading => this is _Loading;
   bool get hasChanging =>
       draft.bodies.isNotEmpty || draft.additionalContent.isNotEmpty;
