@@ -16,6 +16,7 @@ class Editor extends StatelessWidget {
     this.onTranslate,
     this.translating = false,
     this.titleDisabled = false,
+    this.translateEnabled = false,
   });
 
   final FocusNode titleFocusNode;
@@ -25,6 +26,7 @@ class Editor extends StatelessWidget {
   final VoidCallback? onTranslate;
   final bool translating;
   final bool titleDisabled;
+  final bool translateEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,7 @@ class Editor extends StatelessWidget {
           child: Container(height: 1, color: Palette.grayBorder),
         ),
         const SizedBox(height: 10),
-        if (onTranslate != null)
+        if (translateEnabled)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18),
             child: Row(

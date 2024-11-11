@@ -270,6 +270,9 @@ class _LayoutState extends State<_Layout> with SingleTickerProviderStateMixin {
                   .isNotEmpty) return;
               _translate();
             },
+            translateEnabled: _englishBodyController.plainTextEditingValue.text
+                .trim()
+                .isEmpty,
             titleFocusNode: _englishTitleFocusNode,
             bodyFocusNode: _englishBodyFocusNode,
             titleController: _englishTitleController,
