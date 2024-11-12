@@ -28,7 +28,7 @@ class NoticeEntity {
   final List<ImageProvider> images;
   final List<String> documentUrls;
   final bool isReminded;
-  final DateTime? publishedAt;
+  final DateTime publishedAt;
   final String? groupName;
   final NoticeCategory category;
 
@@ -71,7 +71,7 @@ class NoticeEntity {
         documentUrls: [],
         author: AuthorEntity(name: '', uuid: ''),
         isReminded: false,
-        publishedAt: null,
+        publishedAt: DateTime.now(),
         groupName: null,
         category: NoticeCategory.etc,
       );
@@ -105,7 +105,7 @@ class NoticeEntity {
             imageUrls.map((url) => CachedNetworkImageProvider(url)).toList(),
         documentUrls: [],
         isReminded: isReminded,
-        publishedAt: null,
+        publishedAt: DateTime.now(),
         groupName: null,
         category: category,
       );
@@ -130,22 +130,19 @@ class NoticeEntity {
         images: draft.images.map((file) => FileImage(file)).toList(),
         documentUrls: [],
         isReminded: false,
-        publishedAt: null,
+        publishedAt: DateTime.now(),
         groupName: null,
         category: NoticeCategory.fromType(draft.type!)!,
       );
 }
 
 extension NoticeEntityExtension on NoticeEntity {
-  static const maxTimeToEdit = Duration(minutes: 15);
-
   int reactionsBy(NoticeReaction reaction) =>
       reactions.firstWhereOrNull((e) => e.emoji == reaction.emoji)?.count ?? 0;
   int get likes => reactionsBy(NoticeReaction.like);
   bool reacted(NoticeReaction reaction) =>
       reactions.firstWhereOrNull((e) => e.emoji == reaction.emoji)?.isReacted ??
       false;
-  bool get canEdit => DateTime.now().difference(createdAt) < maxTimeToEdit;
   bool get canRemind {
     if (currentDeadline == null) return false;
     if (currentDeadline!.toLocal().isBefore(DateTime.now())) return false;
@@ -208,8 +205,7 @@ extension NoticeEntityExtension on NoticeEntity {
     return copyWith(reactions: reactions);
   }
 
-  bool get isPublished =>
-      publishedAt != null && publishedAt!.isBefore(DateTime.now());
+  bool get isPublished => publishedAt.isBefore(DateTime.now());
   NoticeEntity addDraft(NoticeWriteDraftEntity draft) => NoticeEntity(
         id: id,
         views: views,
