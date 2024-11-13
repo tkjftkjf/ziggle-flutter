@@ -1,24 +1,24 @@
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:injectable/injectable.dart';
-import 'package:ziggle/app/modules/user/data/data_sources/remote/user_api.dart';
+import 'package:ziggle/app/modules/user/data/data_sources/remote/base_auth_api.dart';
 import 'package:ziggle/app/modules/user/domain/repositories/auth_repository.dart';
 import 'package:ziggle/app/modules/user/domain/repositories/oauth_repository.dart';
 import 'package:ziggle/app/modules/user/domain/repositories/token_repository.dart';
 
-@Injectable(as: AuthRepository)
-class RestAuthRepository implements AuthRepository {
-  final UserApi _api;
-  // TODO: separate with wrapper repository
+abstract class RestAuthRepository implements AuthRepository {
+  final BaseAuthApi _api;
   final TokenRepository _tokenRepository;
   final CookieManager _cookieManager;
   final OAuthRepository _oAuthRepository;
 
-  RestAuthRepository(
-    this._api,
-    this._tokenRepository,
-    this._cookieManager,
-    this._oAuthRepository,
-  );
+  RestAuthRepository({
+    required BaseAuthApi api,
+    required TokenRepository tokenRepository,
+    required CookieManager cookieManager,
+    required OAuthRepository oAuthRepository,
+  })  : _api = api,
+        _tokenRepository = tokenRepository,
+        _cookieManager = cookieManager,
+        _oAuthRepository = oAuthRepository;
 
   @override
   Future<void> login() async {

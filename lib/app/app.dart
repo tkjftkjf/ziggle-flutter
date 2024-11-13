@@ -11,6 +11,7 @@ import 'package:ziggle/app/modules/notices/presentation/cubit/copy_link_cubit.da
 import 'package:ziggle/app/modules/notices/presentation/cubit/share_cubit.dart';
 import 'package:ziggle/app/modules/user/presentation/bloc/auth_bloc.dart';
 import 'package:ziggle/app/modules/user/presentation/bloc/developer_option_bloc.dart';
+import 'package:ziggle/app/modules/user/presentation/bloc/group_auth_bloc.dart';
 import 'package:ziggle/app/modules/user/presentation/bloc/user_bloc.dart';
 import 'package:ziggle/app/router.dart';
 import 'package:ziggle/app/router_observer.dart';
@@ -60,6 +61,10 @@ class _Providers extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          lazy: false,
+          create: (_) => sl<GroupAuthBloc>()..add(GroupAuthEvent.load()),
+        ),
         BlocProvider(
           lazy: false,
           create: (_) => sl<AuthBloc>()..add(const AuthEvent.load()),
