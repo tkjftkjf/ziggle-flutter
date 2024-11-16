@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ziggle/app/modules/common/presentation/extensions/toast.dart';
 import 'package:ziggle/app/modules/common/presentation/widgets/ziggle_app_bar.dart';
 import 'package:ziggle/app/modules/core/data/models/analytics_event.dart';
 import 'package:ziggle/app/modules/core/domain/enums/page_source.dart';
@@ -44,9 +45,16 @@ class _NoticeEditPreviewPageState extends State<NoticeEditPreviewPage>
               context.select((NoticeWriteBloc bloc) => bloc.state.draft);
           final notice =
               context.select((NoticeBloc bloc) => bloc.state.entity!);
-          return NoticeRenderer(
-            notice: notice.addDraft(draft),
-            hideAuthorSetting: true,
+          return BlocListener<NoticeBloc, NoticeState>(
+            listener: (context, state) {
+              state.mapOrNull(
+                error: (error) => context.showToast(error.message),
+              );
+            },
+            child: NoticeRenderer(
+              notice: notice.addDraft(draft),
+              hideAuthorSetting: true,
+            ),
           );
         },
       ),
