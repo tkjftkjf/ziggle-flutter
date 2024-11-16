@@ -288,12 +288,14 @@ class _LayoutState extends State<_Layout> with SingleTickerProviderStateMixin {
       lang: Language.en,
     ));
     final result = await blocker;
+    if (!mounted) return;
     result.mapOrNull(
       loaded: (result) {
         AnalyticsRepository.action(
             const AnalyticsEvent.noticeEditBodyUseAiTranslation());
         return _englishBodyController.html = result.body;
       },
+      error: (error) => context.showToast(error.message),
     );
   }
 
