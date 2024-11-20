@@ -63,6 +63,34 @@
       "noGroup": "속한 그룹이 없습니다.",
       "contact": "특정 그룹에 속하길 바라신다면, 해당 그룹의 관리자에게 문의해주세요."
     },
+    "manage": {
+      "header": "그룹 관리",
+      "back": "돌아가기",
+      "change": "변경",
+      "profileImage": "그룹 프로필 사진 변경",
+      "name": {
+        "header": "그룹명 변경",
+        "groupName": "그룹명",
+        "helpText": "인포팀"
+      },
+      "description": {
+        "header": "그룹 간단 소개 변경"
+      },
+      "notionLink": {
+        "header": "노션 페이지 링크 변경",
+        "hintText": "노션 링크 입력",
+        "loading": "노션 불러오는 중"
+      },
+      "invite": {
+        "header": "초대 링크 생성",
+        "invitationLink": "초대 링크"
+      },
+      "member": {
+        "header": "멤버 관리"
+      },
+      "delete": "그룹 삭제",
+      "leave": "그룹 나가기"
+    },
     "memberCard": {
       "role": {
         "role": "역할",
@@ -251,6 +279,8 @@
       "description": "공지를 작성하고, 반응을 남기려면 로그인해주세요.",
       "action": "로그인하기"
     },
+    "groups": "그룹",
+    "myGroups": "내가 속한 그룹들",
     "setting": {
       "title": "설정",
       "notification": {

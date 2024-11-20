@@ -63,6 +63,34 @@
       "noGroup": "所属しているグループはありません。",
       "contact": "特定のグループに参加したい場合は、そのグループの管理者に連絡してください。"
     },
+    "manage": {
+      "header": "グループ管理",
+      "back": "戻る",
+      "change": "変更",
+      "profileImage": "グループのプロフィール写真を変更",
+      "name": {
+        "header": "グループ名を変更",
+        "groupName": "グループ名",
+        "helpText": "インフォチーム"
+      },
+      "description": {
+        "header": "グループの簡単な紹介を変更"
+      },
+      "notionLink": {
+        "header": "ノーションページリンクを更新",
+        "hintText": "ノーションリンクを入力してください",
+        "loading": "ノーションを読み込んでいます"
+      },
+      "invite": {
+        "header": "招待リンクを生成",
+        "invitationLink": "招待リンク"
+      },
+      "member": {
+        "header": "メンバーを管理"
+      },
+      "delete": "グループを削除",
+      "leave": "グループから退出"
+    },
     "memberCard": {
       "role": {
         "role": "役割",
@@ -251,6 +279,8 @@
       "description": "お知らせを作成し、リアクションを残すにはログインしてください。",
       "action": "ログイン"
     },
+    "groups": "グループ",
+    "myGroups": "マイグループ",
     "setting": {
       "title": "設定",
       "notification": {

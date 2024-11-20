@@ -63,6 +63,34 @@
       "noGroup": "You are not in any group.",
       "contact": "If you wish to join a specific group, please contact the group’s administrator."
     },
+    "manage": {
+      "header": "Group Management",
+      "back": "Back",
+      "change": "Change",
+      "profileImage": "Change Group Profile Image",
+      "name": {
+        "header": "Change Group Name",
+        "groupName": "Group Name",
+        "helpText": "InfoTeam"
+      },
+      "description": {
+        "header": "Change Group Description"
+      },
+      "notionLink": {
+        "header": "Update Notion Page Link",
+        "hintText": "Enter Notion Link",
+        "loading": "Loading Notion"
+      },
+      "invite": {
+        "header": "Generate Invite Link",
+        "invitationLink": "Invitation Link"
+      },
+      "member": {
+        "header": "Manage Members"
+      },
+      "delete": "Delete Group",
+      "leave": "Leave Group"
+    },
     "memberCard": {
       "role": {
         "role": "Role",
@@ -251,6 +279,8 @@
       "description": "Please log in to write notices and leave reactions.",
       "action": "Login"
     },
+    "groups": "Group",
+    "myGroups": "My Groups",
     "setting": {
       "title": "Setting",
       "notification": {
