@@ -1,4 +1,5 @@
 import 'package:ziggle/app/modules/groups/data/data_sources/models/group_model.dart';
+import 'package:ziggle/app/modules/groups/domain/entities/group_list_entity.dart';
 
 abstract class GroupRepository {
   Future<GroupModel> createGroup({
@@ -7,4 +8,6 @@ abstract class GroupRepository {
     required String? notionPageId,
     // required File image,
   });
+
+  Future<GroupListEntity> getGroups();
 }
