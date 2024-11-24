@@ -21,15 +21,17 @@ class RestGroupRepository implements GroupRepository {
   @override
   Future<GroupModel> createGroup({
     required String name,
+    File? image,
     required String description,
     String? notionPageId,
-    File? image,
   }) async {
     final createdGroup = await _api.createGroup(CreateGroupModel(
       name: name,
       description: description,
       notionPageId: notionPageId,
     ));
+
+    if (image != null) await _api.uploadImage(createdGroup.uuid, image);
     return createdGroup;
   }
 
