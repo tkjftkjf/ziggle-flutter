@@ -6,7 +6,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../domain/repositories/link_repository.dart';
 
-@singleton
+@Singleton(order: -10)
 class AppLinksLinkRepository implements LinkRepository {
   final _linkSubject = BehaviorSubject<String>();
   late final StreamSubscription<String?> _subscription;
@@ -15,9 +15,12 @@ class AppLinksLinkRepository implements LinkRepository {
   @PostConstruct(preResolve: true)
   Future<void> init() async {
     final initialLink =
-        await appLinks.getInitialLinkString().catchError((_) => null);
-    if (initialLink != null) _linkSubject.add(initialLink);
-    _subscription = appLinks.stringLinkStream.listen(_linkSubject.add);
+        (await appLinks.getInitialLink().catchError((_) => null)) ??
+            (await appLinks.getLatestLink().catchError((_) => null));
+    if (initialLink != null) _linkSubject.add(initialLink.toString());
+    _subscription = appLinks.uriLinkStream
+        .map((l) => l.toString())
+        .listen(_linkSubject.add);
   }
 
   @disposeMethod
