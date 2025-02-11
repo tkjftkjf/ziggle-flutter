@@ -319,5 +319,11 @@
       "enabled": "Developer mode is enabled.",
       "toggleChannel": "Toggle API channel (current: $channel)"
     }
+  },
+  "promotion": {
+    "recruiting": {
+      "title": "Apply to join the Infoteam",
+      "description": "Did Infoteam create this Ziggle?"
+    }
   }
 }
