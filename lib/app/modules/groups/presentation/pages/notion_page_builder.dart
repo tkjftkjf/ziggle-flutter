@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 
 class NotionPageBuilder extends StatelessWidget {
   final Map<String, dynamic> blocksMap;
-  final String rootBlockId;
 
   const NotionPageBuilder({
     super.key,
     required this.blocksMap,
-    required this.rootBlockId,
   });
 
   @override
   Widget build(BuildContext context) {
+    final firstBlock =
+        blocksMap.keys.firstWhere((id) => (blocksMap[id]['type'] == 'page'));
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: _buildBlock(rootBlockId, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      child: _buildPageBlock(firstBlock),
     );
   }
 
@@ -31,11 +31,7 @@ class NotionPageBuilder extends StatelessWidget {
 
     switch (type) {
       case 'page':
-        if (blockId == rootBlockId) {
-          return _buildPageBlock(blockId, properties, content, indentLevel);
-        } else {
-          return _buildSubPageBlock(blockId, properties, content, indentLevel);
-        }
+        return _buildSubPageBlock(properties, content, indentLevel);
       case 'text':
         return _buildTextBlock(properties, indentLevel);
       case 'header':
@@ -68,39 +64,32 @@ class NotionPageBuilder extends StatelessWidget {
     }
   }
 
-  // --------------------------------------------------------------------------
-  // 1) Page Block
-  // --------------------------------------------------------------------------
   Widget _buildPageBlock(
-    String blockId,
-    Map<String, dynamic> properties,
-    List<dynamic> content,
-    int indentLevel,
+    String firstBlockId,
   ) {
+    final properties =
+        blocksMap[firstBlockId]['properties'] as Map<String, dynamic>? ?? {};
+    final content = blocksMap[firstBlockId]['content'] as List<dynamic>? ?? [];
     final pageTitle = _extractPlainText(properties['title']);
     final children = content
         .whereType<String>()
-        .map((childId) => _buildBlock(childId, indentLevel))
+        .map((childId) => _buildBlock(childId, 0))
         .toList();
 
-    return Padding(
-      padding: EdgeInsets.only(left: indentLevel * 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            pageTitle,
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          pageTitle,
+          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        ...children,
+      ],
     );
   }
 
   Widget _buildSubPageBlock(
-    String blockId,
     Map<String, dynamic> properties,
     List<dynamic> content,
     int indentLevel,
@@ -109,7 +98,6 @@ class NotionPageBuilder extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        // TODO: navigate to a new page if desired
         debugPrint('Clicked sub-page: $subPageTitle');
       },
       child: Container(
@@ -130,9 +118,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 2) Text Block (인라인 스타일)
-  // --------------------------------------------------------------------------
   Widget _buildTextBlock(Map<String, dynamic> properties, int indentLevel) {
     final titleProperty = properties['title'];
     return Padding(
@@ -144,9 +129,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 3) Header / SubSubHeader / Quote / Callout
-  // --------------------------------------------------------------------------
   Widget _buildHeaderBlock(Map<String, dynamic> properties, int indentLevel) {
     final titleProperty = properties['title'];
     return Padding(
@@ -223,9 +205,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 4) Image Block
-  // --------------------------------------------------------------------------
   Widget _buildImageBlock(
     Map<String, dynamic> properties,
     Map<String, dynamic> format,
@@ -248,9 +227,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 5) Toggle Block
-  // --------------------------------------------------------------------------
   Widget _buildToggleBlock(
     Map<String, dynamic> properties,
     List<dynamic> content,
@@ -258,10 +234,8 @@ class NotionPageBuilder extends StatelessWidget {
   ) {
     final titleProperty = properties['title'];
 
-    // 자식 블록들
     final childWidgets = content.map<Widget>((childId) {
       if (childId is String) {
-        // 토글 안에 또 리스트나 토글이 들어갈 수도 -> indentLevel + 1
         return _buildBlock(childId, indentLevel + 1);
       }
       return const SizedBox.shrink();
@@ -286,9 +260,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 6) Bulleted List Block
-  // --------------------------------------------------------------------------
   Widget _buildBulletedListBlock(
     Map<String, dynamic> properties,
     List<dynamic> content,
@@ -296,20 +267,15 @@ class NotionPageBuilder extends StatelessWidget {
   ) {
     final children = <Widget>[];
 
-    // (1) 우선, **이 블록 자체**의 title을 하나의 불릿 아이템으로 표시
-    // ex: "안녕"
     final titleProperty = properties['title'];
     if (titleProperty != null) {
       children.add(_buildSingleBulletItem(titleProperty, indentLevel));
     }
 
-    // (2) 그리고, content에 다른 블록이 있으면 재귀적으로 표시
     for (var childId in content) {
       if (childId is String) {
         final childBlock = blocksMap[childId];
         if (childBlock != null) {
-          // 재귀적으로 빌드 (만약 child가 'text'면 그건 '•'로 표시할 수도 있고,
-          // 또 다른 bulleted_list면 중첩 리스트로 표시)
           children.add(_buildBlock(childId, indentLevel + 1));
         }
       }
@@ -339,36 +305,29 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 7) Numbered List Block
-  // --------------------------------------------------------------------------
   Widget _buildNumberedListBlock(
     Map<String, dynamic> properties,
     List<dynamic> content,
     int indentLevel,
   ) {
     final children = <Widget>[];
-    int index = 1; // 번호 시작
+    int index = 1;
 
-    // (1) 블록 자체의 title을 첫 항목으로
     final titleProperty = properties['title'];
     if (titleProperty != null) {
       children.add(_buildNumberedItemTitle(titleProperty, indentLevel));
     }
 
-    // (2) content 순회
     for (var childId in content) {
       if (childId is String) {
         final childBlock = blocksMap[childId];
         if (childBlock != null) {
-          // 만약 'text' 블록이면 -> 번호를 붙여 표시
           final childType = childBlock['type'] as String? ?? 'unknown';
           if (childType == 'text') {
             children.add(
                 _buildNumberedItemBlock(childBlock, index, indentLevel + 1));
             index++;
           } else {
-            // 그 외 블록 -> 재귀
             children.add(_buildBlock(childId, indentLevel + 1));
           }
         }
@@ -379,9 +338,6 @@ class NotionPageBuilder extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start, children: children);
   }
 
-  /// numbered_list 블록이 스스로 가진 title -> "1) "(임시) 로 표시
-  /// 실제로는 "1. " 뒤에 index++가 필요할 수도 있지만
-  /// 여기서는 첫 항목용으로 간단히..
   Widget _buildNumberedItemTitle(dynamic titleProperty, int indentLevel) {
     return Padding(
       padding: EdgeInsets.only(top: 2, bottom: 2, left: indentLevel * 16.0),
@@ -400,7 +356,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  /// numbered_list content 중 "text" 블록을 번호 + 텍스트로 표시
   Widget _buildNumberedItemBlock(
     Map<String, dynamic> blockData,
     int index,
@@ -426,9 +381,6 @@ class NotionPageBuilder extends StatelessWidget {
     );
   }
 
-  // --------------------------------------------------------------------------
-  // 8) 헬퍼 함수들
-  // --------------------------------------------------------------------------
   Widget buildRichTextWithBaseStyle(
       dynamic titleProperty, TextStyle baseStyle) {
     if (titleProperty is! List) {
