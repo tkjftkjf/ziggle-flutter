@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -11,35 +13,55 @@ part 'group_management_main_bloc.freezed.dart';
 class GroupManagementMainBloc
     extends Bloc<GroupManagementMainEvent, GroupManagementMainState> {
   final GroupRepository _repository;
+  late final StreamSubscription<GroupListEntity> _groupsSubscription;
 
   GroupManagementMainBloc(this._repository) : super(_Initial()) {
-    on<_Load>(_handleLoadOrRefresh);
-    on<_Refresh>(_handleLoadOrRefresh);
-  }
+    _groupsSubscription = _repository.watchGroups().listen((groups) {
+      add(GroupManagementMainEvent.groupsUpdated(groups));
+    });
 
-  void _handleLoadOrRefresh(
-      event, Emitter<GroupManagementMainState> emit) async {
-    emit(_Loading());
-    try {
-      final groups = await _repository.getGroups();
-      emit(_Loaded(groups));
-    } on Exception catch (e) {
-      emit(_Error(e.toString()));
-    }
+    on<_Load>((event, emit) async {
+      emit(_Loading());
+      try {
+        final groups = await _repository.getGroups();
+        if (groups.list.isNotEmpty) {
+          emit(_Loaded(groups));
+          return;
+        }
+        emit(_Error("No groups found"));
+      } on Exception catch (e) {
+        emit(_Error(e.toString()));
+      }
+    });
+    on<_GroupsUpdated>((event, emit) {
+      emit(_Loading());
+      if (event.groups.list.isNotEmpty) {
+        emit(_Loaded(event.groups));
+        return;
+      }
+      emit(_Error("No groups found"));
+    });
   }
 
   static Future<void> refresh(BuildContext context) async {
     final bloc = context.read<GroupManagementMainBloc>();
     final blocker = bloc.stream.firstWhere((state) => !state.isLoading);
-    bloc.add(_Refresh());
+    bloc.add(_Load());
     await blocker;
+  }
+
+  @override
+  Future<void> close() {
+    _groupsSubscription.cancel();
+    return super.close();
   }
 }
 
 @freezed
 class GroupManagementMainEvent with _$GroupManagementMainEvent {
   const factory GroupManagementMainEvent.load() = _Load;
-  const factory GroupManagementMainEvent.refresh() = _Refresh;
+  const factory GroupManagementMainEvent.groupsUpdated(GroupListEntity groups) =
+      _GroupsUpdated;
 }
 
 @freezed

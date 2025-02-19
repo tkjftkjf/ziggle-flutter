@@ -93,29 +93,38 @@ class AppRouter extends RootStackRouter {
       ),
       AutoRoute(path: '/search', page: SearchRoute.page),
       AutoRoute(
-        path: '/group/manage',
-        page: GroupManagementRoute.page,
+        path: '/group/management-main',
+        page: GroupManagementMainRoute.page,
       ),
       AutoRoute(
-        path: '/group/manage/name',
-        page: GroupManagementNameRoute.page,
-      ),
-      AutoRoute(
-        path: '/group/manage/description',
-        page: GroupManagementDescriptionRoute.page,
-      ),
-      AutoRoute(
-        path: '/group/manage/notion',
-        page: GroupManagementNotionRoute.page,
-      ),
-      AutoRoute(
-        path: '/group/manage/member',
-        page: GroupManagementMemberRoute.page,
-      ),
-      AutoRoute(
-        path: '/group/manage/invitation',
-        page: GroupManagementInvitationLinkRoute.page,
-      ),
+          path: '/group/management',
+          page: GroupManagementShellRoute.page,
+          children: [
+            AutoRoute(
+              path: '',
+              page: GroupManagementRoute.page,
+            ),
+            AutoRoute(
+              path: 'name',
+              page: GroupManagementNameRoute.page,
+            ),
+            AutoRoute(
+              path: 'description',
+              page: GroupManagementDescriptionRoute.page,
+            ),
+            AutoRoute(
+              path: 'notion',
+              page: GroupManagementNotionRoute.page,
+            ),
+            AutoRoute(
+              path: 'member',
+              page: GroupManagementMemberRoute.page,
+            ),
+            AutoRoute(
+              path: 'invitation',
+              page: GroupManagementInvitationLinkRoute.page,
+            ),
+          ]),
       AutoRoute(
         path: '/group/create',
         page: GroupCreationShellRoute.page,
@@ -137,10 +146,6 @@ class AppRouter extends RootStackRouter {
             page: GroupCreationDoneRoute.page,
           ),
         ],
-      ),
-      AutoRoute(
-        path: '/group/management-main',
-        page: GroupManagementMainRoute.page,
       ),
       AutoRoute(
         path: '/group/detail',
