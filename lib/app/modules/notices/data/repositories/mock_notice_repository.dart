@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:injectable/injectable.dart';
 import 'package:ziggle/app/modules/core/domain/enums/language.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_entity.dart';
+import 'package:ziggle/app/modules/notices/domain/entities/notice_group_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_list_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_reaction_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/enums/notice_reaction.dart';
@@ -134,14 +135,16 @@ class MockNoticeRepository implements NoticeRepository {
   }
 
   @override
-  Future<NoticeEntity> write(
-      {required String title,
-      required String content,
-      DateTime? deadline,
-      required NoticeType type,
-      List<String> tags = const [],
-      List<File> images = const [],
-      List<File> documents = const []}) {
+  Future<NoticeEntity> write({
+    required String title,
+    required String content,
+    DateTime? deadline,
+    required NoticeType type,
+    List<String> tags = const [],
+    List<File> images = const [],
+    List<File> documents = const [],
+    NoticeGroupEntity? group,
+  }) {
     throw UnimplementedError();
   }
 

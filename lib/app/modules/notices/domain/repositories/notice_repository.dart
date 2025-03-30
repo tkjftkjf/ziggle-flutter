@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ziggle/app/modules/core/domain/enums/language.dart';
+import 'package:ziggle/app/modules/notices/domain/entities/notice_group_entity.dart';
 
 import '../entities/notice_entity.dart';
 import '../entities/notice_list_entity.dart';
@@ -29,6 +30,7 @@ abstract class NoticeRepository {
     List<String> tags = const [],
     List<File> images = const [],
     List<File> documents = const [],
+    NoticeGroupEntity? group,
   });
   Future<NoticeEntity> modify({
     required int id,

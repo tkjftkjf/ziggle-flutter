@@ -5,6 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ziggle/app/modules/core/domain/enums/language.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_entity.dart';
+import 'package:ziggle/app/modules/notices/domain/entities/notice_group_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_write_draft_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/enums/notice_type.dart';
 import 'package:ziggle/app/modules/notices/domain/repositories/draft_save_repository.dart';
@@ -45,6 +46,7 @@ class NoticeWriteBloc extends Bloc<NoticeWriteEvent, NoticeWriteState> {
           type: event.type,
           tags: event.tags,
           deadline: event.deadline,
+          group: event.group,
         ))));
     on<_AddAdditional>((event, emit) => emit(_Draft(state.draft.copyWith(
           deadline: event.deadline,
@@ -53,6 +55,7 @@ class NoticeWriteBloc extends Bloc<NoticeWriteEvent, NoticeWriteState> {
     on<_Publish>((event, emit) async {
       try {
         emit(_Loading(state.draft));
+
         if (event.prevNotice != null) {
           final notice = event.prevNotice!;
           if (!notice.isPublished &&
@@ -98,6 +101,7 @@ class NoticeWriteBloc extends Bloc<NoticeWriteEvent, NoticeWriteState> {
             tags: state.draft.tags,
             images: state.draft.images,
             deadline: state.draft.deadline,
+            group: state.draft.group,
           );
           if (state.draft.bodies.containsKey(Language.en)) {
             await _repository.writeForeign(
@@ -136,6 +140,7 @@ class NoticeWriteEvent {
     required NoticeType type,
     required List<String> tags,
     DateTime? deadline,
+    NoticeGroupEntity? group,
   }) = _SetConfig;
   const factory NoticeWriteEvent.addAdditional({
     DateTime? deadline,

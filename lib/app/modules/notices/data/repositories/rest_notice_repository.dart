@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import 'package:ziggle/app/modules/core/domain/enums/language.dart';
+import 'package:ziggle/app/modules/notices/data/data_sources/remote/ziggle_group_api.dart';
 import 'package:ziggle/app/modules/notices/data/data_sources/remote/document_api.dart';
 import 'package:ziggle/app/modules/notices/data/data_sources/remote/image_api.dart';
 import 'package:ziggle/app/modules/notices/data/data_sources/remote/notice_api.dart';
@@ -15,6 +17,7 @@ import 'package:ziggle/app/modules/notices/data/models/create_notice_model.dart'
 import 'package:ziggle/app/modules/notices/data/models/get_notices_query_model.dart';
 import 'package:ziggle/app/modules/notices/data/models/modify_notice_model.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_entity.dart';
+import 'package:ziggle/app/modules/notices/domain/entities/notice_group_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/notice_list_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/entities/tag_entity.dart';
 import 'package:ziggle/app/modules/notices/domain/enums/notice_category.dart';
@@ -28,12 +31,14 @@ class RestNoticeRepository implements NoticeRepository {
   final TagApi _tagApi;
   final ImageApi _imageApi;
   final DocumentApi _documentApi;
+  final ZiggleGroupApi _groupApi;
 
   RestNoticeRepository(
     this._api,
     this._tagApi,
     this._imageApi,
     this._documentApi,
+    this._groupApi,
   );
 
   @override
@@ -139,14 +144,16 @@ class RestNoticeRepository implements NoticeRepository {
   }
 
   @override
-  Future<NoticeEntity> write(
-      {required String title,
-      required String content,
-      DateTime? deadline,
-      required NoticeType type,
-      List<String> tags = const [],
-      List<File> images = const [],
-      List<File> documents = const []}) async {
+  Future<NoticeEntity> write({
+    required String title,
+    required String content,
+    DateTime? deadline,
+    required NoticeType type,
+    List<String> tags = const [],
+    List<File> images = const [],
+    List<File> documents = const [],
+    NoticeGroupEntity? group,
+  }) async {
     final uploadedTags = await Future.wait(
       tags.map((tag) async {
         final existingTag = await _getTag(tag);
@@ -158,15 +165,21 @@ class RestNoticeRepository implements NoticeRepository {
     final uploadedDocuments = documents.isEmpty
         ? <String>[]
         : await _documentApi.uploadDocuments(documents);
-    return _api.createNotice(CreateNoticeModel(
-      title: title,
-      body: content,
-      deadline: deadline,
-      category: NoticeCategory.fromType(type)!,
-      tags: uploadedTags.map((tag) => tag.id).toList(),
-      images: uploadedImages,
-      documents: uploadedDocuments,
-    ));
+    final groupsTokenResponce = await _groupApi.getGroupToken();
+
+    return _api.createNotice(
+      CreateNoticeModel(
+        title: title,
+        body: content,
+        deadline: deadline,
+        category: NoticeCategory.fromType(type)!,
+        tags: uploadedTags.map((tag) => tag.id).toList(),
+        images: uploadedImages,
+        documents: uploadedDocuments,
+        groupId: group?.uuid,
+      ),
+      group?.uuid != null ? groupsTokenResponce.groupsToken : null,
+    );
   }
 
   @override
