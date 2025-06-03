@@ -82,9 +82,12 @@ class RestGroupRepository implements GroupRepository {
   }
 
   @override
-  Future<String> createInviteLink(
-      {required String uuid, required int duration}) async {
-    final response = await _api.createInviteCode(uuid, duration);
+  Future<String> createInviteLink({
+    required String uuid,
+    required int roleId,
+    required int duration,
+  }) async {
+    final response = await _api.createInviteCode(uuid, roleId, duration);
     return response.code;
   }
 
@@ -94,15 +97,19 @@ class RestGroupRepository implements GroupRepository {
   }
 
   @override
+  Future<RoleEntity> getUserRoleInGroup(String uuid) {
+    return _api.getUserRoleInGroup(uuid);
+  }
+
+  @override
   Future<void> grantRoleToUser(
       {required String uuid, required String targetUuid, required int roleId}) {
     return _api.grantUserRole(uuid, targetUuid, roleId);
   }
 
   @override
-  Future<void> leaveGroup(String uuid) {
-    // TODO: implement leaveGroup
-    throw UnimplementedError();
+  Future<void> leaveGroup(String groupUuid) async {
+    await _api.leaveGroup(groupUuid);
   }
 
   @override

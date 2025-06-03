@@ -317,9 +317,10 @@ class MemberTabBarView extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final member = members.list[index];
                       return GroupMemberCard.viewMode(
-                          name: member.name,
-                          email: member.email,
-                          role: member.role);
+                        name: member.name,
+                        email: member.email,
+                        role: member.role,
+                      );
                     },
                     separatorBuilder: (context, index) =>
                         const SizedBox(height: 5),

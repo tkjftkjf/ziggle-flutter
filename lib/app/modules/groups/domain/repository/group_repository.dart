@@ -14,12 +14,9 @@ abstract class GroupRepository {
     required String description,
     String? notionPageId,
   });
-
   Stream<GroupListEntity> watchGroups();
   Future<GroupListEntity> getGroups();
-
   Future<GroupEntity> getGroup(String uuid);
-
   Future<void> modifyProfileImage({
     required String uuid,
     required File image,
@@ -30,9 +27,8 @@ abstract class GroupRepository {
     required String description,
     required String? notionPageId,
   });
-
   Future<String> createInviteLink(
-      {required String uuid, required int duration});
+      {required String uuid, required int roleId, required int duration});
 
   Future<MemberListEntity> getMembers(String uuid);
   Future<void> removeMember({
@@ -49,16 +45,12 @@ abstract class GroupRepository {
     required String targetUuid,
     required int roleId,
   });
-
+  Future<RoleEntity> getUserRoleInGroup(String uuid);
   Future<RoleListEntity> getRoles(String groupUuid);
-
   Future<void> createRole(String groupUuid, RoleEntity role);
-
   Future<void> updateRole(
       String groupUuid, int roleId, AuthorityEntity authority);
-
   Future<void> deleteRole(String groupUuid, int roleId);
-
   Future<void> deleteGroup(String uuid);
-  Future<void> leaveGroup(String uuid);
+  Future<void> leaveGroup(String groupUuid);
 }
