@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ziggle/app/modules/groups/data/enums/group_member_role.dart';
 import 'package:ziggle/app/modules/groups/domain/entities/authority_entity.dart';
 import 'package:ziggle/app/modules/groups/domain/entities/group_entity.dart';
 import 'package:ziggle/app/modules/groups/domain/entities/group_list_entity.dart';
@@ -27,14 +28,17 @@ abstract class GroupRepository {
     required String description,
     required String? notionPageId,
   });
-  Future<String> createInviteLink(
-      {required String uuid, required int roleId, required int duration});
-
+  Future<String> createInviteLink({
+    required GroupEntity group,
+    required GroupMemberRole role,
+    required Duration durationDays,
+  });
   Future<MemberListEntity> getMembers(String uuid);
   Future<void> removeMember({
     required String uuid,
     required String targetUuid,
   });
+  Future<RoleEntity> getUserRoleInGroup(String uuid);
   Future<void> grantRoleToUser({
     required String uuid,
     required String targetUuid,
@@ -45,7 +49,6 @@ abstract class GroupRepository {
     required String targetUuid,
     required int roleId,
   });
-  Future<RoleEntity> getUserRoleInGroup(String uuid);
   Future<RoleListEntity> getRoles(String groupUuid);
   Future<void> createRole(String groupUuid, RoleEntity role);
   Future<void> updateRole(
